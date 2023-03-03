@@ -6,17 +6,22 @@ const MIME_TYPES: object = {
     "image/png": "png",
 };
 
+const genRanHex = (size: number) =>
+    [...Array(size)]
+        .map(() => Math.floor(Math.random() * 16).toString(16))
+        .join("");
+
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
-        callback(null, "/data/images");
+        callback(null, "/data/");
     },
     filename: (req, file, callback) => {
-        const name = file.originalname.split(" ").join("_").substring(0, 16);
         let extension: string;
         if (!((file.mimetype as keyof typeof MIME_TYPES) in MIME_TYPES))
             extension = "jpg";
         else extension = MIME_TYPES[file.mimetype as keyof typeof MIME_TYPES];
-        callback(null, name + Date.now() + "." + extension);
+        console.log("called");
+        callback(null, genRanHex(5) + Date.now() + "." + extension);
     },
 });
 

@@ -15,7 +15,7 @@ services:
     ports:
       - 8108:8108
     environment:
-      TYPESENSE_API_KEY: ${TS_API_KEY}
+      TYPESENSE_API_KEY: "fortnite"
       TYPESENSE_DATA_DIR: /data
     volumes:
       - ./docker_volumes/typesense:/data

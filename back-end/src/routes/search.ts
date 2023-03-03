@@ -8,17 +8,19 @@ import ts_client from "../middleware/typesense_connect";
 router.post("/search", check_login, (req, res) => {
     const data = req.body;
 
-    const body_verif = check_body(["filter_by", "query"], data);
-    if (body_verif != "")
-        return res
-            .status(400)
-            .send({ msg: `Missing mandatory element ${body_verif}` });
+    console.log(req.body);
+    // const body_verif = check_body(["filter_by", "query"], data);
+    // if (body_verif != "")
+    //     return res
+    //         .status(400)
+    //         .send({ msg: `Missing mandatory element ${body_verif}` });
 
     const searchParameters = {
         q: data.query,
         query_by: data.filter_by,
-        // filter_by: ``,
+        // filter_by: "",
     };
+    console.log(searchParameters);
 
     ts_client
         .collections("images")
@@ -29,6 +31,7 @@ router.post("/search", check_login, (req, res) => {
                 return res.status(200).send(searchResults);
             },
             (reason) => {
+                console.log(reason);
                 return res.status(500).send(reason);
             }
         );

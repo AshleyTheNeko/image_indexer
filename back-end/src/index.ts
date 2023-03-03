@@ -7,6 +7,7 @@ import * as edit_image from "./routes/edit_image";
 import * as add_image from "./routes/add_image";
 import * as delete_image from "./routes/delete_image";
 import mongo_client from "./middleware/mongo_connect";
+import typesense_cli from "./middleware/typesense_connect";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,17 @@ mongo_client.connect().then(
     (db) => {
         app.locals.db = db;
 
+        typesense_cli.collections().create({
+            name: "images",
+            fields: [
+                { name: "private", type: "string" },
+                { name: "img_path", type: "string" },
+                { name: "ocr_result", type: "string" },
+                { name: "keywords", type: "string" },
+                { name: "color", type: "int32[]" },
+                { name: "date_added", type: "int32" },
+            ],
+        });
         app.listen(process.env.APP_PORT, () => {
             console.log(`Listening on port ${process.env.APP_PORT}`);
         });

@@ -9,17 +9,14 @@ import Theme from "../Components/Theme";
 
 export default function Search() {
   const [email, setEmail] = useState<string | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [error_msg, setErrorMsg] = useState("");
-
-  const [element, setElement] = useState(<Logo />);
+  const [element, setElement] = useState(<p>loading</p>);
 
   useEffect(() => {
     axios
       .post("http://localhost:8080/images", {query: "owo", query_by: "ocr_result"})
       .then((data) => {
-        var infos = data.data.map((meal) => {
+        const infos = data.data.map((image: object) => {
           return (
             <>
               <TouchableOpacity

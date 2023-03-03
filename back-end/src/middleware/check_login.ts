@@ -11,7 +11,7 @@ export const check_login = (
     if (token === null || token == undefined)
         return res.status(401).json({ msg: "No token, authorization denied" });
 
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+    jwt.verify(token, "fortnite", (err, user) => {
         if (err) {
             return res.status(401).send({ msg: "Token is not valid" });
         }

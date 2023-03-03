@@ -8,28 +8,30 @@ import get_colors from "get-image-colors";
 import path from "path";
 import { check_login } from "..//middleware/check_login";
 
-router.post("/images", check_login, upload, (req, res) => {
+router.post("/images", upload, check_login, (req, res) => {
     const data = req.body;
 
-    const body_verif = check_body(["keywords, private"], data);
-    if (body_verif != "")
-        return res
-            .status(400)
-            .send({ msg: `Missing mandatory element ${body_verif}` });
+    console.log(data);
+    // const body_verif = check_body(["keywords, private"], data);
+    // if (body_verif != "")
+    //     return res
+    //         .status(400)
+    //         .send({ msg: `Missing mandatory element ${body_verif}` });
 
     if (!req.file) return res.status(400).send({ msg: "Missing file" });
 
-    if (!(Object.prototype.toString.call(data.keywords) === "[object Array]"))
-        return res.status(400).send({ msg: "Type error on keywords" });
+    // if (!(Object.prototype.toString.call(data.keywords) === "[object Array]"))
+    //     return res.status(400).send({ msg: "Type error on keywords" });
 
     if (data.private != "true" && data.private != "false")
         return res.status(400).send({ msg: "Type error on private" });
 
     Tesseract.recognize(req.file.path).then((result) => {
-        get_colors(path.join(__dirname, "/pic.jpg")).then(
+        get_colors(req.file.path).then(
             (colors) => {
                 if (!req.file)
                     return res.status(400).send({ msg: "Missing file" });
+                console.log(req.body);
                 const new_img = {
                     user: req.body.user.mail,
                     private: data.private,
@@ -49,11 +51,13 @@ router.post("/images", check_login, upload, (req, res) => {
                             return res.status(201).send({ msg: "Created" });
                         },
                         (err) => {
+                            console.log(("fail cli add"));
                             return res.status(500).send(err);
                         }
-                    );
+                        );
             },
             (err) => {
+                console.log(("fail cli add"));
                 return res.status(500).send(err);
             }
         );
