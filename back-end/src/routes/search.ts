@@ -34,7 +34,7 @@ router.post("/search", (req, res) => {
 });
 
 router.get("/images/:name", (req, res) => {
-    const path = `/app/${req.params.name}`;
+    const path = `/data/${req.params.name}`;
 
     try {
         if (existsSync(path)) {
