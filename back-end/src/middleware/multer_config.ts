@@ -8,7 +8,7 @@ const MIME_TYPES: object = {
 
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
-        callback(null, "/app/images");
+        callback(null, "/data/images");
     },
     filename: (req, file, callback) => {
         const name = file.originalname.split(" ").join("_").substring(0, 16);
