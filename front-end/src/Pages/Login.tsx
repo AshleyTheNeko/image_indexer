@@ -35,9 +35,6 @@ export default function Login() {
   function handleRegister() {
     navigate(Pages.Register);
   }
-  async function handleGoogle() {
-    console.log("google");
-  }
 
   return (
     <MainContainer>
@@ -59,7 +56,6 @@ export default function Login() {
         <Separator />
         <Button onClick={handleLogin}>Login</Button>
         <Button onClick={handleRegister}>Register</Button>
-        <Button onClick={handleGoogle}>Connect with Google</Button>
       </LoginCard>
     </MainContainer>
   );
