@@ -14,8 +14,8 @@ export default function Search() {
       if (email == null || password == null) return;
       axios
         .post(
-          `http://localhost:8080/login`,
-          { mail: email, pass: password },
+          `http://localhost:8080/search`,
+          { query:  },
           { headers: { "Content-Type": "application/json" } }
         )
         .then(

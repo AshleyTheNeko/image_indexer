@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 export const Pages = {
   Login: "/login",
@@ -32,7 +33,7 @@ export default function Navbar() {
     return (<></>)
   return (
     <NavbarContainer>
-      <div >Nyarea</div>
+      <div >image indexer</div>
       <div >
         {ButtonsList.map((button, index) => (
           <NavbarButton key={index} onClick={() => navigate(button.page)}>
