@@ -1,57 +1,55 @@
 import { Router } from "express";
+import { check_body } from "../middleware/check_body";
 export const router = Router();
+import client from "../middleware/typesense_connect";
+import upload from "../middleware/multer_config";
+import Tesseract from "tesseract.js";
+import get_colors from "get-image-colors";
+import path from "path";
 
-router.post("/images", (req, res) => {
+router.post("/images", upload, (req, res) => {
     const data = req.body;
-    const db = req.app.locals.db.db("pog");
 
-    if (!is_valid(["name", "desc", "allergens", "fridge_id"], data))
-        return res.status(400).send({ msg: "Missing mandatory element(s)" });
-    if (!req.files || !req.files.thumbnail)
-        return res.status(400).send({ msg: "Missing file" });
+    const body_verif = check_body(["keywords"], data);
+    if (body_verif != "")
+        return res
+            .status(400)
+            .send({ msg: `Missing mandatory element ${body_verif}` });
 
-    try {
-        var allergens = JSON.parse(data.allergens);
-        if (allergens.constructor.name != "Array")
-            return res.status(400).send({ msg: "Wrong allergens data" });
-    } catch (error) {
-        return res.status(400).send({ msg: "Wrong allergens data" });
-    }
-    for (let i = 0; i < allergens.length; i++) {
-        if (allergens[i] > 15 || allergens[i] < 1)
-            return res.status(400).send({ msg: "Wrong allergens data" });
-    }
+    if (!req.file) return res.status(400).send({ msg: "Missing file" });
 
-    var new_dish = {
-        name: data.name,
-        desc: data.desc,
-        time: Math.floor(Date.now() / 1000),
-        fridge_id: data.fridge_id,
-        allergens: allergens
-    };
+    if (!(Object.prototype.toString.call(data.keywords) === "[object Array]"))
+        return res.status(400).send({ msg: "Type error on keywords" });
 
-    db.collection("fridges").find({ _id: ObjectId(data.fridge_id) }).toArray((err, result) => {
-        if (err)
-            return res.status(500).send(err_arr);
-        if (result.length == 0)
-            return res.status(400).send({ msg: "Invalid fridge ID" });
-        if (result[0].dishes.indexOf(null) == -1) {
-            return res.status(400).send({ msg: "Fridge is full" });
-        }
+    Tesseract.recognize(req.file.path).then((result) => {
+        get_colors(path.join(__dirname, "/pic.jpg")).then(
+            (colors) => {
+                if (!req.file)
+                    return res.status(400).send({ msg: "Missing file" });
+                const new_img = {
+                    img_path: req.file.path,
+                    ocr_result: result.data.text.replace("/[^\x00-\x7F]/g", ""),
+                    keywords: data.desc,
+                    color: colors[0]._rgb,
+                    date_added: Math.floor(Date.now() / 1000),
+                };
 
-        db.collection("dishes").insertOne(new_dish, (err, res_insert) => {
-            if (err) res.status(500).send(err);
-
-            db.collection("fridges").updateOne(
-                { _id: ObjectId(data.fridge_id), dishes: undefined },
-                { $set: { "dishes.$": `${res_insert.insertedId}` } },
-                (err, res_update) => {
-                    if (err) res.status(500).send(err);
-                    else {
-                        req.files.thumbnail.mv(`${process.env.TB_PATH}/${res_insert.insertedId}.jpg`);
-                        res.status(201).send({ id: res_insert.insertedId });
-                    }
-                });
-        });
+                client
+                    .collections("images")
+                    .documents()
+                    .create(new_img)
+                    .then(
+                        () => {
+                            return res.status(201).send({ msg: "Created" });
+                        },
+                        (err) => {
+                            return res.status(500).send(err);
+                        }
+                    );
+            },
+            (err) => {
+                return res.status(500).send(err);
+            }
+        );
     });
 });
