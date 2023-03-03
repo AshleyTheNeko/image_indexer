@@ -14,8 +14,8 @@ function App() {
                 <Navbar />
                 <header className="App-header">
                     <Routes>
-                        <Route path={Pages.Home} element={<Search />} />
                         <Route path={Pages.Login} element={<Login />} />
+                        <Route path={Pages.Home} element={<Search />} />
                         <Route path={Pages.Register} element={<Register />} />
                         <Route path={Pages.Add} element={<AddPage />} />
                     </Routes>
