@@ -35,7 +35,8 @@ mongo_client.connect().then(
                 { name: "color", type: "int32[]" },
                 { name: "date_added", type: "int32" },
             ],
-        });
+        }).catch(reason => {console.log(reason);});
+    
         app.listen(process.env.APP_PORT, () => {
             console.log(`Listening on port ${process.env.APP_PORT}`);
         });
