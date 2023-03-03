@@ -5,6 +5,7 @@ import styled from "styled-components";
 export const Pages = {
   Login: "/login",
   Register: "/register",
+  Add: "/add",
   Home: "/",
 }
 
