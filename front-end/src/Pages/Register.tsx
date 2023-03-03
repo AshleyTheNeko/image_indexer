@@ -4,6 +4,8 @@ import { Input, Button, Separator } from "../Components/BasicComponents";
 import axios from "axios";
 import { Pages } from "./NavBar";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import Theme from "../Components/Theme";
 
 export default function Register() {
   const [username, setUsername] = useState<string | null>(null);
