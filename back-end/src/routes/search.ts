@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { existsSync } from "fs";
 export const router = Router();
 import { check_body } from "../middleware/check_body";
 import ts_client from "../middleware/typesense_connect";
@@ -30,4 +31,17 @@ router.post("/search", (req, res) => {
                 return res.status(500).send(reason);
             }
         );
+});
+
+router.get("/images/:name", (req, res) => {
+    const path = `/app/${req.params.name}`;
+
+    try {
+        if (existsSync(path)) {
+            res.status(200).sendFile(path);
+        } else
+            res.status(404).send({ msg: "Not found" });
+    } catch (err) {
+        console.log(err);
+    }
 });

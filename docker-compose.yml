@@ -40,5 +40,19 @@ services:
     volumes:
       - ./docker_volumes/backend:/data
 
-  # front-end:
-  #   build: ./front-end
+  front-end:
+    image: frontend
+    build: ./front-end
+    depends_on:
+      - mongo
+      - typesense
+    restart: always
+    environment:
+      BACK_HOST: localhost
+      APP_PORT: ${APP_PORT}
+    ports:
+      - 3000:3000
+    command: npm run start
+    volumes:
+      - ./docker_volumes/backend:/data
+

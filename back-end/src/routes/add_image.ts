@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { check_body } from "../middleware/check_body";
 export const router = Router();
+import { check_body } from "../middleware/check_body";
 import client from "../middleware/typesense_connect";
 import upload from "../middleware/multer_config";
 import Tesseract from "tesseract.js";
@@ -27,7 +27,7 @@ router.post("/images", upload, (req, res) => {
                 if (!req.file)
                     return res.status(400).send({ msg: "Missing file" });
                 const new_img = {
-                    img_path: req.file.path,
+                    img_path: req.file.filename,
                     ocr_result: result.data.text.replace("/[^\x00-\x7F]/g", ""),
                     keywords: data.desc,
                     color: colors[0]._rgb,
