@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Login.css";
 import axios from "axios";
 import { Pages } from "./NavBar";
@@ -13,31 +13,35 @@ export default function Search() {
   const navigate = useNavigate();
   const [error_msg, setErrorMsg] = useState("");
 
-  async function handleLogin() {
-    if (email == null || password == null) return;
+  const [element, setElement] = useState(<Logo />);
+
+  useEffect(() => {
     axios
-      .post(
-        `http://localhost:8080/search`,
-        { query:  },
-        { headers: { "Content-Type": "application/json" } }
-      )
-      .then(
-        (res) => {
-          window.localStorage.setItem("jwt", res.data.token)
-          navigate(Pages.Home);
-        },
-        (err) => {
-          setErrorMsg(err.message)
-        }
-      );
-    console.log("login " + email + "; " + password);
-  }
-  function handleRegister() {
-    navigate(Pages.Register);
-  }
-  async function handleGoogle() {
-    console.log("google");
-  }
+      .post("http://localhost:8080/images", {query: "owo", query_by: "ocr_result"})
+      .then((data) => {
+        var infos = data.data.map((meal) => {
+          return (
+            <>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("MealInfoScreen", { meal: meal })
+                }
+                style={styles.mealImage}
+              >
+                <MealImage data_meal={meal}>{meal._id}</MealImage>
+              </TouchableOpacity>
+              <MealName key={meal._id}>{meal.name}</MealName>
+              <MealLoc key={meal._id}>{meal.location}</MealLoc>
+              <Text>{getElapseTime(meal.time)}</Text>
+            </>
+          );
+        });
+        setElement(infos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <MainContainer>
