@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import * as typesense from "typesense";
 import * as login from "./routes/login";
 import * as search from "./routes/search";
 import * as edit_image from "./routes/edit_image";
