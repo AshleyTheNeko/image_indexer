@@ -29,7 +29,7 @@ router.post("/images", upload, (req, res) => {
                 const new_img = {
                     img_path: req.file.filename,
                     ocr_result: result.data.text.replace("/[^\x00-\x7F]/g", ""),
-                    keywords: data.desc,
+                    keywords: data.keywords,
                     color: colors[0]._rgb,
                     date_added: Math.floor(Date.now() / 1000),
                 };
