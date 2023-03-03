@@ -6,11 +6,12 @@ import upload from "../middleware/multer_config";
 import Tesseract from "tesseract.js";
 import get_colors from "get-image-colors";
 import path from "path";
+import { check_login } from "..//middleware/check_login";
 
-router.post("/images", upload, (req, res) => {
+router.post("/images", check_login, upload, (req, res) => {
     const data = req.body;
 
-    const body_verif = check_body(["keywords"], data);
+    const body_verif = check_body(["keywords, private"], data);
     if (body_verif != "")
         return res
             .status(400)
@@ -21,12 +22,17 @@ router.post("/images", upload, (req, res) => {
     if (!(Object.prototype.toString.call(data.keywords) === "[object Array]"))
         return res.status(400).send({ msg: "Type error on keywords" });
 
+    if (data.private != "true" && data.private != "false")
+        return res.status(400).send({ msg: "Type error on private" });
+
     Tesseract.recognize(req.file.path).then((result) => {
         get_colors(path.join(__dirname, "/pic.jpg")).then(
             (colors) => {
                 if (!req.file)
                     return res.status(400).send({ msg: "Missing file" });
                 const new_img = {
+                    user: req.body.user.mail,
+                    private: data.private,
                     img_path: req.file.filename,
                     ocr_result: result.data.text.replace("/[^\x00-\x7F]/g", ""),
                     keywords: data.keywords,
