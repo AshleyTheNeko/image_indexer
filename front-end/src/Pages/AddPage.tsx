@@ -2,50 +2,53 @@ import React from "react";
 import axios from "axios";
 import { useState } from 'react';
 
-export default function AddPage({ navigation }) {
+export default function AddPage() {
   const formData = new FormData();
-  formData.append("file", selectedFile);
-  const [mealName, setText] = useState('');
-  const [location, setTextLoc] = useState('');
-  const [desc, setTextDesc] = useState('');
+  const [key_word, set_key_word] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [private_, setPrivate] = useState("false");
+
+  const handleFileSelect = (event: any) => {
+    setSelectedFile(event.target.files[0]);
+    console.log(event.target);
+    console.log(event.target.files[0]);
+  }
+
   return (
     <div>
-      <header>ADD A MEAL</header>
-      <input title="Name"
-        onChange={(newMealName) => setText({newMealName})}
-        defaultValue={mealName}
+      <header>ADD MY MEME</header>
+      <input title="key word"
+        onChange={(text) => {
+          if (text != null)
+            set_key_word(text.target.value);
+        }}
       />
-      <input title="Name" 
-        onChange={(newDesc) => setTextLoc({newDesc})}
-        defaultValue={desc}
-      />
-      <input title="Name" 
-        onChange={(newLocation) => setTextDesc({newLocation})}
-        defaultValue={location}
-      />
+      <input type="checkbox" onChange={() => { if (private_ == "false") { setPrivate("true") } else { setPrivate("false") } }} />
+      <form>
+        <input type="file" onChange={handleFileSelect} />
+      </form>
       <button
-        mode="contained"
-        onPress={() => {
+        onClick={() => {
+          const jwt = window.localStorage.getItem("jwt");
+          if (!selectedFile)
+            return;
+          formData.append("file", selectedFile);
           axios
-          .post("http://localhost:8080/dishes", {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            name: {mealName},
-            desc: {desc},
-            location: {location},
-            allergens: '[1, 4, 5]',
-            thumbnail: formData,
-          })
-          .then(() => {
-            navigation.navigate("HomeScreen");
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+            .post("http://localhost:8080/image", {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: jwt
+              },
+              key_word: { key_word },
+              private: private_,
+              image: formData,
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }}
       >
-        ADD MY MEAL
+        ADD IMAGE
       </button>
     </div>
   );
