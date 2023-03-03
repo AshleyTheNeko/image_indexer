@@ -2,7 +2,6 @@ import { Router } from "express";
 import { existsSync } from "fs";
 import { check_login } from "../middleware/check_login";
 export const router = Router();
-import { check_body } from "../middleware/check_body";
 import ts_client from "../middleware/typesense_connect";
 
 router.post("/search", check_login, (req, res) => {
@@ -40,9 +39,38 @@ router.post("/search", check_login, (req, res) => {
 router.get("/images/:name", check_login, (req, res) => {
     const path = `/data/${req.params.name}`;
 
+    const searchParameters = {
+        q: req.params.name,
+        query_by: "img_path",
+    };
     try {
         if (existsSync(path)) {
-            res.status(200).sendFile(path);
+            ts_client
+                .collections("images")
+                .documents()
+                .search(searchParameters)
+                .then(
+                    (searchResults) => {
+                        if (
+                            (
+                                searchResults.hits[0].document as {
+                                    private: string;
+                                }
+                            ).private == "false"
+                        )
+                            return res.status(200).sendFile(path);
+                        if (
+                            (searchResults.hits[0].document as { mail: string })
+                                .mail == req.body.mail
+                        )
+                            return res.status(200).sendFile(path);
+                        return res.status(401).send({ msg: "unauthorized" });
+                    },
+                    (reason) => {
+                        console.log(reason);
+                        return res.status(500).send(reason);
+                    }
+                );
         } else res.status(404).send({ msg: "Not found" });
     } catch (err) {
         console.log(err);
